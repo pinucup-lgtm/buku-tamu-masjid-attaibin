@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aplikasi Buku Tamu Online & Rekapitulasi</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      /* Ganti URL gambar di bawah ini dengan foto latar belakang pilihan Anda */
+      --bg-image: url('https://www.google.com/maps/place/Masjid+Baitut+At-Taaibiin/@-7.058579,110.391783,3a,75y,90t/data=!3m8!1e2!3m6!1sCIHM0ogKEICAgICkxom9HA!2e10!3e12!6shttps:%2F%2Flh3.googleusercontent.com%2Fgps-cs-s%2FANWiy9SGa1UPvAKOiUtYt7yMUlc_-pSKq_Ed0BKrPt0vvXpYK9kuuPYqwoVFA0ueGfnIjuw8C6V0sHa79c4MV9iMoiJEJvHTo1VEcQTk3Dv1AEZFrjJIK51jHWnBCaMIcUr7rEu8uA0J%3Dw203-h152-k-no!7i2840!8i2130!4m7!3m6!1s0x2e708962a2fd54b9:0xce696378cbf6ee!8m2!3d-7.058579!4d110.391783!10e5!16s%2Fg%2F11cmpd7t46?entry=ttu&g_ep=EgoyMDI2MTAxNC4wIKXMDSoASAFQAw%3D%3D#');
+      --card-bg: rgba(30, 41, 59, 0.9); /* Efek transparan */
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --accent-green: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    body {
+      background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), var(--bg-image);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-light);
+      padding: 20px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 900px; margin: 20px auto; }
+    
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    h1 { font-size: 24px; color: #38bdf8; margin-bottom: 6px; }
+    p.subtitle { font-size: 14px; color: var(--text-muted); }
+
+    /* NAV TAB */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .tab-btn {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    form { display: flex; flex-direction: column; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
+    
+    input, textarea {
+      padding: 12px;
+      border-radius: 8px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-light);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus { border-color: var(--primary); }
+
+    .preview-box {
+      margin-top: 8px;
+      max-width: 200px;
+      display: none;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    button.btn-submit {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+    button.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* TABLE REKAP */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+    th { background: rgba(15, 23, 42, 0.8); color: #38bdf8; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      margin-bottom: 16px;
+    }
+    .alert-success { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--accent-green); color: #34d399; }
+    .alert-error { background: rgba(244, 63, 94, 0.2); border: 1px solid #f43f5e; color: #fecdd3; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- NAVIGASI TAB -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-form')">📝 Form Buku Tamu</button>
+    <button class="tab-btn" onclick="switchTab('tab-rekap')">📊 Rekapitulasi Data Tamu</button>
+  </div>
+
+  <!-- TAB 1: FORMULIR -->
+  <div id="tab-form" class="tab-content active card">
+    <header>
+      <h1>📋 Buku Tamu Online</h1>
+      <p class="subtitle">Silakan isi formulir kunjungan di bawah ini</p>
+    </header>
+
+    <div id="alert-box" class="alert"></div>
+
+    <form id="guest-form" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label for="nama">Nama Lengkap *</label>
+        <input type="text" id="nama" required placeholder="Contoh: Muhammad" />
+      </div>
+
+      <div class="form-group">
+        <label for="alamat">Asal / Alamat *</label>
+        <textarea id="alamat" rows="2" required placeholder="Contoh: Jl. Pemuda No. 12, Semarang"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="keperluan">Keperluan *</label>
+        <input type="text" id="keperluan" required placeholder="Contoh: Bepergian lintas kota" />
+      </div>
+
+      <div class="form-group">
+        <label for="durasi">Durasi Kunjungan (Hari) *</label>
+        <input type="number" id="durasi" min="1" value="1" required />
+      </div>
+
+      <div class="form-group">
+        <label for="telepon">Nomor Telepon / WhatsApp *</label>
+        <input type="tel" id="telepon" required placeholder="Contoh: 081234567890" />
+      </div>
+
+      <div class="form-group">
+        <label for="foto">Upload Foto KTP / Identitas *</label>
+        <input type="file" id="foto" accept="image/*" required onchange="previewImage(event)" />
+        <img id="image-preview" class="preview-box" alt="Pratinjau KTP" />
+      </div>
+
+      <button type="submit" id="btn-submit" class="btn-submit">💾 Kirim Data Tamu</button>
+    </form>
+  </div>
+
+  <!-- TAB 2: REKAPITULASI -->
+  <div id="tab-rekap" class="tab-content card">
+    <header>
+      <h1>📊 Rekapitulasi Buku Tamu</h1>
+      <p class="subtitle">Daftar riwayat tamu yang telah diinput</p>
+    </header>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Waktu</th>
+            <th>Nama</th>
+            <th>Asal / Alamat</th>
+            <th>Keperluan</th>
+            <th>Durasi</th>
+            <th>Telepon</th>
+          </tr>
+        </thead>
+        <tbody id="rekap-table-body">
+          <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Belum ada data tersimpan.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+  const scriptURL = "https://script.google.com/macros/s/AKfycbx.../exec";
+
+  let photoBase64 = "";
+  let guestList = JSON.parse(localStorage.getItem('buku_tamu_lokal') || '[]');
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+
+    if (tabId === 'tab-rekap') {
+      renderRekapTable();
+    }
+  }
+
+  function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        photoBase64 = e.target.result;
+        const imgEl = document.getElementById('image-preview');
+        imgEl.src = photoBase64;
+        imgEl.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!scriptURL || scriptURL.includes("AKfycbx...")) {
+      showAlert("Harap masukkan URL Google Apps Script yang valid pada variabel scriptURL!", "error");
+      return;
+    }
+
+    const btnSubmit = document.getElementById('btn-submit');
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "⏳ Mengirim data...";
+
+    const newGuest = {
+      timestamp: new Date().toLocaleString('id-ID'),
+      nama: document.getElementById('nama').value.trim(),
+      alamat: document.getElementById('alamat').value.trim(),
+      keperluan: document.getElementById('keperluan').value.trim(),
+      durasi: document.getElementById('durasi').value,
+      telepon: document.getElementById('telepon').value.trim(),
+      photoBase64: photoBase64
+    };
+
+    try {
+      const response = await fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(newGuest)
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        showAlert("Data tamu berhasil disimpan ke Google Sheets!", "success");
+        
+        // Simpan ke penyimpanan lokal untuk menu rekap
+        guestList.unshift(newGuest);
+        localStorage.setItem('buku_tamu_lokal', JSON.stringify(guestList));
+
+        document.getElementById('guest-form').reset();
+        document.getElementById('image-preview').style.display = 'none';
+        photoBase64 = "";
+      } else {
+        showAlert("Gagal menyimpan data: " + result.message, "error");
+      }
+    } catch (err) {
+      showAlert("Terjadi kesalahan saat menghubungi server.", "error");
+      console.error(err);
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "💾 Kirim Data Tamu";
+    }
+  }
+
+  function renderRekapTable() {
+    const tbody = document.getElementById('rekap-table-body');
+    if (guestList.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Belum ada data tersimpan.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = guestList.map((item, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${item.timestamp}</td>
+        <td style="font-weight: bold;">${item.nama}</td>
+        <td>${item.alamat}</td>
+        <td>${item.keperluan}</td>
+        <td>${item.durasi} Hari</td>
+        <td>${item.telepon}</td>
+      </tr>
+    `).join('');
+  }
+
+  function showAlert(message, type) {
+    const alertBox = document.getElementById('alert-box');
+    alertBox.textContent = message;
+    alertBox.className = "alert " + (type === "success" ? "alert-success" : "alert-error");
+    alertBox.style.display = "block";
+    setTimeout(() => { alertBox.style.display = "none"; }, 5000);
+  }
+</script>
+
+</body>
+</html>
